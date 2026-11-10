@@ -5,26 +5,41 @@ import { Download } from 'lucide-react';
 export default function InstallButton() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isIOS, setIsIOS] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
   useEffect(() => {
-    // Detect iOS
+    // 1. Register Service Worker for Android PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(console.error);
+    }
+
+    // 2. Check if the app is already installed (Standalone mode)
+    if (window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone) {
+      setIsStandalone(true);
+    }
+
+    // 3. Detect iOS
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     setIsIOS(isIOSDevice);
 
-    // Listen for Android/Chrome install prompt
-    window.addEventListener('beforeinstallprompt', (e) => {
+    // 4. Listen for Android/Chrome install prompt
+    const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
-    });
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
 
   const handleInstallClick = async () => {
     if (isIOS) {
-      // Show custom instructions for iPhone
       setShowIOSInstructions(true);
     } else if (deferredPrompt) {
-      // Show native install prompt for Android/Desktop
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
@@ -35,8 +50,8 @@ export default function InstallButton() {
     }
   };
 
-  // If already installed, don't show the button
-  if (window.matchMedia('(display-mode: standalone)').matches) return null;
+  // Hide the button if the app is already installed
+  if (isStandalone) return null;
 
   return (
     <>
@@ -47,7 +62,6 @@ export default function InstallButton() {
         <Download size={16} /> Install App
       </button>
 
-      {/* iOS Instructions Popup */}
       {showIOSInstructions && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white dark:bg-slate-800 p-6 rounded-xl max-w-sm w-full text-center space-y-4 text-slate-900 dark:text-white">
