@@ -1,3 +1,4 @@
+import InstallButton from '../components/InstallButton';
 import ThemeToggle from '../components/ThemeToggle'
 // @ts-ignore - Next.js handles global CSS imports at build time.
 import './globals.css'
@@ -27,7 +28,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="flex items-center gap-6 text-sm font-medium">
               <Link href="/songs" className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition">All Songs</Link>
               <Link href="/donate" className="text-slate-600 dark:text-slate-300 hover:text-green-600 dark:hover:text-green-400 transition">Donate</Link>
+              <InstallButton />
               <ThemeToggle />
+            
             </div>
           </div>
         </nav>
