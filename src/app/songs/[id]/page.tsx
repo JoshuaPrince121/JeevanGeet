@@ -1,9 +1,11 @@
-import { prisma } from '../../../lib/prisma';
-import { notFound } from 'next/navigation';
+import { prisma } from '../../../lib/prisma';import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
 export default async function SongPage({ params }: { params: any }) {
-  const song = await prisma.song.findUnique({ where: { id: params.id } });
+  // FIX: Await the params before extracting the ID
+  const { id } = await params; 
+  
+  const song = await prisma.song.findUnique({ where: { id: id } });
 
   if (!song) return notFound();
 

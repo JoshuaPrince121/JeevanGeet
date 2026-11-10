@@ -1,6 +1,19 @@
+'use client';
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/songs?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
   return (
     <main className="flex flex-col items-center justify-center min-h-[80vh] p-4 transition-colors duration-300">
       <div className="max-w-3xl text-center space-y-8">
@@ -13,13 +26,16 @@ export default function Home() {
           A complete digital songbook. Browse, search, and read your favorite hymns.
         </p>
         
-        <div className="w-full max-w-xl mx-auto pt-4">
+        {/* Real Search Form */}
+        <form onSubmit={handleSearch} className="w-full max-w-xl mx-auto pt-4">
           <input 
             type="text" 
             placeholder="Search songs by title, number, or lyrics..." 
             className="w-full px-6 py-4 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg text-slate-900 dark:text-white"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-        </div>
+        </form>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
           <Link href="/songs" className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-lg">
