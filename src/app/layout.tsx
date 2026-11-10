@@ -6,6 +6,11 @@ import Link from 'next/link'
 export const metadata = {
   title: 'Jeevan Geet',
   description: 'Digital Songbook',
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/icon.png',
+    apple: '/icon.png', // This tells iPhones to use your icon
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
