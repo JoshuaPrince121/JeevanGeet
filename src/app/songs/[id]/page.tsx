@@ -1,11 +1,9 @@
 import { prisma } from '../../../lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import SongActions from '../../../components/SongActions';
 
 export default async function SongPage({ params }: { params: any }) {
   const { id } = await params; 
-  
   const song = await prisma.song.findUnique({ where: { id: id } });
 
   if (!song) return notFound();
@@ -13,7 +11,7 @@ export default async function SongPage({ params }: { params: any }) {
   return (
     <div className="max-w-3xl mx-auto p-6 md:p-12 transition-colors duration-300">
       
-      <Link href="/songs" className="text-blue-600 dark:text-blue-400 hover:underline mb-8 inline-block font-medium no-print">
+      <Link href="/songs" className="text-blue-600 dark:text-blue-400 hover:underline mb-8 inline-block font-medium">
         &larr; Back to all songs
       </Link>
       
@@ -26,11 +24,9 @@ export default async function SongPage({ params }: { params: any }) {
         </h1>
       </div>
 
-      <div className={`whitespace-pre-wrap text-lg leading-relaxed text-slate-800 dark:text-slate-200 ${song.language === 'Bengali' ? 'font-bengali' : 'font-devanagari'} pb-12`}>
+      <div className="whitespace-pre-wrap text-lg leading-relaxed text-slate-800 dark:text-slate-200 font-serif pb-12">
         {song.lyrics}
       </div>
-
-      <SongActions title={song.title} lyrics={song.lyrics} />
       
     </div>
   );

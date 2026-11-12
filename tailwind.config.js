@@ -6,12 +6,7 @@ module.exports = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {
-      fontFamily: {
-        devanagari: ['var(--font-devanagari)'],
-        bengali: ['var(--font-bengali)'],
-      },
-    },
+    extend: {},
   },
   plugins: [],
 }
