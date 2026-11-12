@@ -1,5 +1,6 @@
 import { prisma } from '../../../lib/prisma';import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import SongActions from '../../../components/SongActions';
 
 export default async function SongPage({ params }: { params: any }) {
   // FIX: Await the params before extracting the ID
@@ -9,11 +10,11 @@ export default async function SongPage({ params }: { params: any }) {
 
   if (!song) return notFound();
 
-  return (
+    return (
     <div className="max-w-3xl mx-auto p-6 md:p-12 transition-colors duration-300">
       
-      {/* Back Button */}
-      <Link href="/songs" className="text-blue-600 dark:text-blue-400 hover:underline mb-8 inline-block font-medium">
+      {/* Back Button - hidden when printing */}
+      <Link href="/songs" className="text-blue-600 dark:text-blue-400 hover:underline mb-8 inline-block font-medium no-print">
         &larr; Back to all songs
       </Link>
       
@@ -27,10 +28,13 @@ export default async function SongPage({ params }: { params: any }) {
         </h1>
       </div>
 
-      {/* Lyrics Text */}
-      <div className="whitespace-pre-wrap text-lg leading-relaxed text-slate-800 dark:text-slate-200 font-serif">
+      {/* Lyrics Text - Added font classes based on language */}
+      <div className={`whitespace-pre-wrap text-lg leading-relaxed text-slate-800 dark:text-slate-200 ${song.language === 'Bengali' ? 'font-bengali' : 'font-devanagari'} pb-12`}>
         {song.lyrics}
       </div>
+
+      {/* Action Buttons */}
+      <SongActions title={song.title} lyrics={song.lyrics} />
       
     </div>
   );

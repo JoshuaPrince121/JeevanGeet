@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@media print {
+  
+    /* Hide navigation, footer, and buttons */
+  nav, footer, .no-print {
+    display: none !important;
+  }
+  /* Force white background and black text */
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  /* Ensure lyrics print perfectly */
+  .whitespace-pre-wrap {
+    font-size: 14pt;
+    line-height: 1.6;
+  }
+}
