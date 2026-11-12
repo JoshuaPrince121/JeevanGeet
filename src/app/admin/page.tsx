@@ -1,11 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
-
+import { useRouter } from 'next/navigation';
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  
+  const router = useRouter();
   const [songs, setSongs] = useState<any[]>([]);
   const [formData, setFormData] = useState({ number: '', title: '', lyrics: '', language: 'Hindi' });
 
@@ -48,10 +48,11 @@ export default function AdminPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this song?')) return;
-    await fetch(`/api/songs/${id}`, { method: 'DELETE' });
-    fetchSongs();
-  };
+  if (!confirm('Are you sure you want to delete this song?')) return;
+  await fetch(`/api/songs/${id}`, { method: 'DELETE' });
+  fetchSongs(); 
+  router.refresh(); // <--- THIS is the magic line that clears the cache!
+  }; 
 
   if (!isAuthenticated) {
     return (
