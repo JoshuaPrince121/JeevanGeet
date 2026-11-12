@@ -1,3 +1,4 @@
+export default function SongActions() {
 'use client';
 import { Copy, Share2, Printer, Check } from 'lucide-react';
 import { useState } from 'react';

@@ -1,12 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'class', // <-- ADD THIS LINE
+  darkMode: 'class',
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        devanagari: ['var(--font-devanagari)'],
+        bengali: ['var(--font-bengali)'],
+      },
+    },
   },
   plugins: [],
 }

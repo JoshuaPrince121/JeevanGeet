@@ -1,17 +1,17 @@
 import Link from 'next/link';
 import { prisma } from '../../lib/prisma';
+
 export const dynamic = 'force-dynamic';
 
 export default async function SongsDirectory({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q } = await searchParams;
   const query = q || '';
 
-  // Fetch songs, filtering by title, lyrics, or number if there is a search query
   const songs = await prisma.song.findMany({
     where: query ? {
       OR: [
-        { title: { contains: query, mode: 'insensitive' } },
-        { lyrics: { contains: query, mode: 'insensitive' } },
+        { title: { contains: query } },
+        { lyrics: { contains: query } },
         { number: isNaN(parseInt(query)) ? undefined : parseInt(query) }
       ]
     } : {},
@@ -25,7 +25,7 @@ export default async function SongsDirectory({ searchParams }: { searchParams: P
         {query ? `Search Results for "${query}"` : 'All Songs'}
       </h1>
 
-      {/* NEW SEARCH BAR */}
+      {/* SEARCH BAR */}
       <form action="/songs" method="GET" className="flex gap-2 mb-8">
         <input 
           type="text" 

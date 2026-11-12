@@ -1,3 +1,4 @@
+export default function ThemeToggle() {
 'use client';
 
 import { useEffect, useState } from 'react';

@@ -1,4 +1,6 @@
-'use client';
+export default function InstallButton() {
+  'use clien
+t';
 import { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
 
