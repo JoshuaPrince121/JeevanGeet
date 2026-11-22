@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jeevan Geet
 
-## Getting Started
+Jeevan Geet includes a gospel-centered Flutter app and a private Next.js admin
+website for songs, articles, ministry reports, and a product catalog.
 
-First, run the development server:
+## Private web admin
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Deploy this Next.js project to Vercel and open `/admin`. The login is a
+configured email address and a password you choose; it is not Google/GitHub
+sign-in, and the password is not your Gmail password. Set these variables in
+Vercel **Project Settings → Environment Variables** and in a local ignored
+`.env.local` file:
+
+```env
+ADMIN_EMAIL="your-admin-email@example.com"
+ADMIN_PASSWORD="a new, unique password with at least 16 characters"
+ADMIN_SESSION_SECRET="a random secret with at least 32 characters"
+SUPABASE_URL="https://YOUR_PROJECT.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="your Supabase service-role key"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Generate a session secret with `openssl rand -base64 32`. Get the service-role
+key from your Supabase project's API settings. Keep it only in the server
+environment: never add it to Flutter, a browser variable, or source control.
+The app's publishable/anon key is safe for the Flutter client.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The private `/admin` dashboard manages songs, articles, ministry reports (with
+optional testimonies), images, and products priced in INR. Create app articles
+and ministry reports in its **Articles & reports** section. Choose a content
+type, complete the title, category, summary, cover image, and body, then select
+**Publish now** to show the item in Flutter Discover. Both content types are
+stored in `gospel_content`; the app does not read from an `articles` table.
+Products can be listed in the app, but there is no cart, payment, or checkout
+yet. Admin sessions use an HTTP-only cookie and expire after eight hours.
+Changing the email, password, or session secret invalidates existing sessions.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Supabase setup
 
-## Learn More
+Supabase is used as shared content and image storage only; no Supabase sign-in
+or OAuth provider is needed. Apply
+[`supabase/migrations/20261118200000_admin_dashboard_products.sql`](./supabase/migrations/20261118200000_admin_dashboard_products.sql)
+to the Supabase project before using the dashboard or app. It creates the
+`gospel_content` and `shop_products` tables, read policies, and public image
+bucket. Apply it through the Supabase SQL Editor or your existing migration
+workflow.
 
-To learn more about Next.js, take a look at the following resources:
+After adding or changing Vercel environment variables, redeploy the project.
+The app's Discover page shows only published articles, reports, and products.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+For local admin development, create an ignored `.env.local` with
+`ADMIN_EMAIL`, a unique `ADMIN_PASSWORD` of at least 16 characters,
+`ADMIN_SESSION_SECRET`, `SUPABASE_URL`, and a newly rotated
+`SUPABASE_SERVICE_ROLE_KEY`. Keep the service-role key server-side only. Do not
+reuse a key that has been shared in chat or committed.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Flutter app
 
-## Deploy on Vercel
+From `src/app/flutter_application_1/jeevan_geet`, run or build with the
+Supabase project URL, publishable key, and deployed admin URL:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```sh
+flutter run -d chrome \
+  --dart-define=SUPABASE_URL=https://YOUR_PROJECT.supabase.co \
+  --dart-define=SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY \
+  --dart-define=ADMIN_DASHBOARD_URL=https://YOUR_VERCEL_DOMAIN/admin
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For older Supabase projects, `SUPABASE_ANON_KEY` is accepted instead of
+`SUPABASE_PUBLISHABLE_KEY`. Never use the service-role key in the Flutter app.
+
+The project also uses Prisma for the existing song APIs. Install dependencies
+with `npm install`; run locally with `npm run dev`. Build using `npm run build`.
