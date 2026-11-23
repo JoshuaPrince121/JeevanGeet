@@ -47,6 +47,30 @@ workflow.
 After adding or changing Vercel environment variables, redeploy the project.
 The app's Discover page shows only published articles, reports, and products.
 
+## Daily content sync
+
+Apply
+[`supabase/migrations/20261123100000_daily_verse_and_external_articles.sql`](./supabase/migrations/20261123100000_daily_verse_and_external_articles.sql)
+after the admin dashboard migration. The cron imports the five newest title,
+date, and source-link entries from Bible Truth Publishers; it does not copy
+their article text. It replaces only its own Bible Truth Publishers feed rows
+and leaves manually created articles and ministry reports untouched. Imported
+items open the original article from the app.
+
+The daily verse uses the public-domain King James Version from Bible API and
+stores its source link and reference. Vercel runs the cron at 8:00 AM
+Asia/Kolkata. Add a `CRON_SECRET` environment variable in Vercel Production and
+in `.env.local` for local testing; Vercel sends it as the cron request's bearer
+token. The route rejects requests without that token. For the local `curl`
+test, also make `CRON_SECRET` available in the shell; Next.js loading
+`.env.local` does not export it to shell commands.
+
+To test locally, start the Next.js app and send an authenticated request:
+
+```sh
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/daily-article
+```
+
 For local admin development, create an ignored `.env.local` with
 `ADMIN_EMAIL`, a unique `ADMIN_PASSWORD` of at least 16 characters,
 `ADMIN_SESSION_SECRET`, `SUPABASE_URL`, and a newly rotated
