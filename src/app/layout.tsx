@@ -14,16 +14,16 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+      <body className="flex min-h-screen flex-col bg-neutral-50 text-neutral-950 transition-colors duration-300 dark:bg-neutral-950 dark:text-neutral-100">
         
-        <nav className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700 transition-colors duration-300">
-          <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
-            <Link href="/" className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+        <nav className="border-b border-neutral-200 bg-white transition-colors duration-300 dark:border-neutral-800 dark:bg-neutral-950">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:px-8">
+            <Link href="/" className="text-2xl font-bold text-neutral-950 dark:text-white">
               जीवन गीत
             </Link>
-            <div className="flex items-center gap-6 text-sm font-medium">
-              <Link href="/songs" className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition">All Songs</Link>
-              <Link href="/donate" className="text-slate-600 dark:text-slate-300 hover:text-green-600 dark:hover:text-green-400 transition">Donate</Link>
+            <div className="flex items-center gap-3 text-sm font-medium md:gap-6">
+              <Link href="/songs" className="text-neutral-600 transition hover:text-black dark:text-neutral-300 dark:hover:text-white">All Songs</Link>
+              <Link href="/donate" className="text-neutral-600 transition hover:text-black dark:text-neutral-300 dark:hover:text-white">Donate</Link>
               <InstallButton />
               <ThemeToggle />
             </div>
@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
 
-        <footer className="text-center py-6 text-sm text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-700 transition-colors duration-300">
+        <footer className="border-t border-neutral-200 py-6 text-center text-sm text-neutral-500 transition-colors duration-300 dark:border-neutral-800 dark:text-neutral-400 print:hidden">
           © {new Date().getFullYear()} Jeevan Geet. All rights reserved.
         </footer>
         

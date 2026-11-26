@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@media print {
+	body {
+		background: #fff !important;
+		color: #000 !important;
+	}
+
+	nav,
+	footer,
+	.no-print {
+		display: none !important;
+	}
+}

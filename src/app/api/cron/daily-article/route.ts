@@ -11,8 +11,6 @@ export const maxDuration = 60;
 
 const BTP_UPDATES_URL =
   'https://bibletruthpublishers.com/library-whats-new-updated/lwn1';
-const KJV_DAILY_URL =
-  'https://bible-api.com/?random=verse&translation=kjv';
 const BTP_HOST = 'bibletruthpublishers.com';
 const ARTICLE_COUNT = 5;
 
@@ -20,12 +18,6 @@ type FeedArticle = {
   title: string;
   source_url: string;
   published_at: string;
-};
-
-type KJVResponse = {
-  reference?: unknown;
-  text?: unknown;
-  translation_id?: unknown;
 };
 
 export async function GET(request: Request) {
@@ -48,20 +40,6 @@ export async function GET(request: Request) {
     }
 
     const supabase = createSupabaseAdminClient();
-    const date = getIndiaDate();
-    const { data: storedVerse, error: storedVerseError } = await supabase
-      .from('daily_verse')
-      .select('verse_text, verse_reference, source_url')
-      .eq('date', date)
-      .maybeSingle();
-    if (storedVerseError) throw storedVerseError;
-    const verse = storedVerse
-      ? {
-          text: storedVerse.verse_text,
-          reference: storedVerse.verse_reference,
-          source_url: storedVerse.source_url,
-        }
-      : await fetchKjvVerse();
 
     const contentRows = articles.map((article) => ({
       kind: 'article',
@@ -77,10 +55,9 @@ export async function GET(request: Request) {
       source_url: article.source_url,
     }));
 
-    const { data: syncedArticles, error: upsertError } = await supabase
+    const { error: upsertError } = await supabase
       .from('gospel_content')
-      .upsert(contentRows, { onConflict: 'source_url' })
-      .select('id, source_url');
+      .upsert(contentRows, { onConflict: 'source_url' });
     if (upsertError) throw upsertError;
 
     const currentUrls = new Set(articles.map((article) => article.source_url));
@@ -103,34 +80,14 @@ export async function GET(request: Request) {
       if (deleteError) throw deleteError;
     }
 
-    const linkedArticle = syncedArticles?.find(
-      (article) => article.source_url === articles[0].source_url,
-    );
-    if (!linkedArticle) throw new Error('Could not link the daily verse.');
-
-    const { error: verseError } = await supabase.from('daily_verse').upsert(
-      {
-        date,
-        verse_text: verse.text,
-        verse_reference: verse.reference,
-        source_url: verse.source_url,
-        linked_article_id: linkedArticle.id,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'date' },
-    );
-    if (verseError) throw verseError;
-
     return NextResponse.json({
       success: true,
       articlesSynced: articles.length,
-      verseReference: verse.reference,
-      date,
     });
   } catch (error) {
-    console.error('Daily content sync failed:', error);
+    console.error('Daily article sync failed:', error);
     return NextResponse.json(
-      { error: 'Daily content sync failed. Check the function logs.' },
+      { error: 'Daily article sync failed. Check the function logs.' },
       { status: 502 },
     );
   }
@@ -152,36 +109,6 @@ async function fetchText(url: string) {
   });
   if (!response.ok) throw new Error(`Source request failed (${response.status}).`);
   return response.text();
-}
-
-async function fetchKjvVerse() {
-  const response = await fetch(KJV_DAILY_URL, {
-    cache: 'no-store',
-    headers: { 'User-Agent': 'JeevanGeetDailyFeed/1.0' },
-    signal: AbortSignal.timeout(15_000),
-  });
-  if (!response.ok) throw new Error(`KJV request failed (${response.status}).`);
-
-  const result = (await response.json()) as KJVResponse;
-  const reference = typeof result.reference === 'string'
-    ? result.reference.trim()
-    : '';
-  const verseText = typeof result.text === 'string'
-    ? result.text.replace(/\s+/g, ' ').trim()
-    : '';
-  if (
-    result.translation_id !== 'kjv' ||
-    reference.length === 0 ||
-    verseText.length === 0
-  ) {
-    throw new Error('The KJV source returned an invalid verse.');
-  }
-
-  return {
-    reference,
-    text: verseText,
-    source_url: `https://bible-api.com/${encodeURIComponent(reference)}?translation=kjv`,
-  };
 }
 
 function parseLatestArticles(html: string): FeedArticle[] {
@@ -239,15 +166,4 @@ function isPublisherUrl(href: string) {
   } catch {
     return false;
   }
-}
-
-function getIndiaDate() {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Kolkata',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(new Date());
-  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-  return `${values.year}-${values.month}-${values.day}`;
 }

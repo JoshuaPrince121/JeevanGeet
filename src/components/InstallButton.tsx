@@ -57,16 +57,16 @@ export default function InstallButton() {
     <>
       <button 
         onClick={handleInstallClick}
-        className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+        className="flex items-center gap-2 rounded-md bg-neutral-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-300"
       >
         <Download size={16} /> Install App
       </button>
 
       {showIOSInstructions && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-slate-800 p-6 rounded-xl max-w-sm w-full text-center space-y-4 text-slate-900 dark:text-white">
+          <div className="w-full max-w-sm space-y-4 rounded-lg border border-neutral-200 bg-white p-6 text-center text-neutral-950 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white">
             <h3 className="text-xl font-bold">Install on iPhone</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
+            <p className="text-sm text-neutral-600 dark:text-neutral-300">
               Apple does not allow automatic downloads. To install this app:
             </p>
             <ol className="text-left text-sm space-y-2 list-decimal list-inside">
@@ -76,7 +76,7 @@ export default function InstallButton() {
             </ol>
             <button 
               onClick={() => setShowIOSInstructions(false)}
-              className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg w-full font-medium"
+              className="mt-4 w-full rounded-md bg-neutral-950 px-6 py-2 font-medium text-white dark:bg-white dark:text-neutral-950"
             >
               Got it
             </button>

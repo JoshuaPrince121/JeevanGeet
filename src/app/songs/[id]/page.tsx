@@ -1,33 +1,32 @@
-import { prisma } from '../../../lib/prisma';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 
-export default async function SongPage({ params }: { params: any }) {
-  const { id } = await params; 
-  const song = await prisma.song.findUnique({ where: { id: id } });
+import { fetchSongById, fetchSongs } from '../../../lib/song-repository';
+import SongReader, { type ReaderSong } from './song-reader';
 
-  if (!song) return notFound();
+export const dynamic = 'force-dynamic';
+
+export default async function SongPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const song = await fetchSongById(id);
+  if (!song) notFound();
+
+  const languageSongs = await fetchSongs({ language: song.language });
+  const songIndex = languageSongs.findIndex((item) => item.id === song.id);
 
   return (
-    <div className="max-w-3xl mx-auto p-6 md:p-12 transition-colors duration-300">
-      
-      <Link href="/songs" className="text-blue-600 dark:text-blue-400 hover:underline mb-8 inline-block font-medium">
-        &larr; Back to all songs
-      </Link>
-      
-      <div className="border-b border-slate-200 dark:border-slate-700 pb-4 mb-8">
-        <p className="text-sm text-slate-500 dark:text-slate-400 font-bold mb-2">
-          {song.language} • Song #{song.number}
-        </p>
-        <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
-          {song.title}
-        </h1>
-      </div>
-
-      <div className="whitespace-pre-wrap text-lg leading-relaxed text-slate-800 dark:text-slate-200 font-serif pb-12">
-        {song.lyrics}
-      </div>
-      
-    </div>
+    <SongReader
+      song={song}
+      languageSongs={languageSongs satisfies ReaderSong[]}
+      previousSong={songIndex > 0 ? languageSongs[songIndex - 1] : null}
+      nextSong={
+        songIndex >= 0 && songIndex < languageSongs.length - 1
+          ? languageSongs[songIndex + 1]
+          : null
+      }
+    />
   );
 }
